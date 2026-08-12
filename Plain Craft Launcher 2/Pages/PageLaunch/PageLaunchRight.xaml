@@ -20,6 +20,16 @@
                     <local:MyButton Grid.Column="1" x:Name="BtnTerracotta" Text="打开陶瓦联机" Height="32" MinWidth="120" Padding="13,0" VerticalAlignment="Center" ColorType="Highlight" />
                 </Grid>
             </local:MyCard>
+            <local:MyCard Margin="0,0,0,15" Title="性能优化">
+                <Grid Margin="20,38,20,18">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="一键完成内存自动分配、显卡高性能与性能优化模组安装（Sodium / Lithium / Phosphor，仅 Fabric / NeoForge 版本）。" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource ColorBrush1}" Margin="0,0,15,0" />
+                    <local:MyButton Grid.Column="1" x:Name="BtnOptimize" Text="一键性能优化" Height="32" MinWidth="120" Padding="13,0" VerticalAlignment="Center" ColorType="Highlight" />
+                </Grid>
+            </local:MyCard>
             <local:MyCard Margin="0,0,0,15" Title="性能与统计" x:Name="PanPerf">
                 <Grid Margin="20,38,20,18">
                     <Grid.ColumnDefinitions>

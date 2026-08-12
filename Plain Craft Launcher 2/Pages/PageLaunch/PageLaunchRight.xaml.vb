@@ -19,6 +19,13 @@ Public Class PageLaunchRight
         ModTerracotta.OpenTerracotta()
     End Sub
 
+    ''' <summary>
+    ''' 一键性能优化。
+    ''' </summary>
+    Private Sub BtnOptimize_Click(sender As Object, e As EventArgs) Handles BtnOptimize.Click
+        ModOptimize.OneKeyOptimize()
+    End Sub
+
 #Region "主页"
 
     ''' <summary>
