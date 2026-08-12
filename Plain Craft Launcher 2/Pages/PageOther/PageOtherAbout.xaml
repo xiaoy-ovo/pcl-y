@@ -1,0 +1,20 @@
+﻿<local:MyPageRight
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:PCL" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    mc:Ignorable="d" x:Class="PageOtherAbout"
+    PanScroll="PanBack" RenderOptions.BitmapScalingMode="LowQuality">
+    <local:MyScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" x:Name="PanBack">
+        <StackPanel x:Name="PanMain" Margin="25,10" Grid.IsSharedSizeScope="True">
+            <local:MyCard Margin="0,15" Title="鸣谢">
+                <StackPanel Margin="25,45,25,40">
+                    <TextBlock x:Name="ItemAboutPcl" Text="BY XIAOY_OVO" HorizontalAlignment="Center" FontSize="14" FontWeight="Normal" Opacity="0.75" />
+                    <TextBlock Text="基于 Plain Craft Launcher（PCL）二次分发，原作者：龙腾猫跃" HorizontalAlignment="Center" Margin="0,10,0,0" FontSize="11" Foreground="{DynamicResource ColorBrush3}" Opacity="0.7" />
+                    <TextBlock Text="%VERSION%（%VERSIONCODE%.%BRANCH%）" HorizontalAlignment="Center" Margin="0,8,0,0" FontSize="13" Foreground="{DynamicResource ColorBrush3}" />
+                    <TextBlock x:Name="LabAboutDesc" Text="PCL-Y Launcher 的二次分发版本" HorizontalAlignment="Center" Margin="0,6,0,0" FontSize="12" Foreground="{DynamicResource ColorBrush3}" />
+                    <local:MyButton Text="检查更新" x:Name="BtnAboutUpdate" Height="35" Margin="0,28,0,0" HorizontalAlignment="Center" Padding="30,0" />
+                </StackPanel>
+            </local:MyCard>
+        </StackPanel>
+    </local:MyScrollViewer>
+</local:MyPageRight>
