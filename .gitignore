@@ -357,3 +357,9 @@ Plain Craft Launcher 2/bin/PCL/
 Plain Craft Launcher 2/bin/Terracotta/
 *.zip
 *.tar.gz
+
+# macOS packaging
+macos/vendor/
+dist/
+.DS_Store
+._*

@@ -1,0 +1,163 @@
+name: Build macOS
+
+on:
+  push:
+    paths:
+      - 'macos/**'
+      - '.github/workflows/macos.yml'
+  pull_request:
+    paths:
+      - 'macos/**'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'pcl-y 版本号（对应 Release tag V<version>）'
+        required: true
+        default: '1.2.0'
+      upload_release:
+        description: '构建后上传到对应 Release'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  # ── 1. 在 Linux 上组装 bundle 并跑离线测试 ──────────────────────────────
+  bundle:
+    name: 组装 .app + 测试
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 确定版本
+        id: ver
+        run: |
+          V="${{ github.event.inputs.version }}"
+          [ -z "$V" ] && V="1.2.0"
+          echo "version=$V" >> $GITHUB_OUTPUT
+          echo "版本: $V"
+
+      - name: 拉取 Windows 发行包
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash macos/fetch-release.sh "${{ steps.ver.outputs.version }}"
+
+      - name: 组装 .app
+        run: bash macos/build.sh --version "${{ steps.ver.outputs.version }}"
+
+      - name: 启动器测试
+        run: bash macos/tests/test-launch.sh
+
+      - name: 安装流程测试
+        run: bash macos/tests/test-setup.sh
+
+      - name: 校验 bundle 结构
+        run: |
+          APP="dist/PCL-Y.app"
+          test -x "$APP/Contents/MacOS/PCL-Y"           || { echo "启动器不可执行"; exit 1; }
+          test -f "$APP/Contents/Info.plist"            || { echo "缺 Info.plist"; exit 1; }
+          test -f "$APP/Contents/Resources/app/pcl-y.exe" || { echo "缺 pcl-y.exe"; exit 1; }
+          test -f "$APP/Contents/Resources/appicon.icns"  || { echo "缺图标"; exit 1; }
+          grep -q '<string>PCL-Y</string>' "$APP/Contents/Info.plist" || { echo "plist 错误"; exit 1; }
+
+          # 换行符必须是 LF
+          if grep -q $'\r' "$APP/Contents/MacOS/PCL-Y"; then echo "启动器含 CRLF"; exit 1; fi
+
+          echo "bundle 结构校验通过"
+          find "$APP" -type f | sed 's/^/  /'
+
+      - name: 上传 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PCL-Y-mac-${{ steps.ver.outputs.version }}
+          path: |
+            dist/PCL-Y-${{ steps.ver.outputs.version }}-mac.zip
+            dist/PCL-Y-${{ steps.ver.outputs.version }}-mac.tar.gz
+          retention-days: 30
+
+  # ── 2. 在 macOS runner 上做真实签名与冒烟测试 ──────────────────────────
+  verify-macos:
+    name: macOS 验证（arm64）
+    needs: bundle
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 下载 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: PCL-Y-mac-${{ needs.bundle.outputs.version }}
+          path: dist
+
+      - name: 解压并检查
+        run: |
+          cd dist
+          unzip -q "PCL-Y-${{ needs.bundle.outputs.version }}-mac.zip"
+          ls -la "PCL-Y.app/Contents/MacOS/"
+
+      - name: 可执行权限检查
+        run: |
+          APP="dist/PCL-Y.app"
+          test -x "$APP/Contents/MacOS/PCL-Y" || { echo "可执行位丢失"; exit 1; }
+          echo "可执行位 OK"
+
+      - name: ad-hoc 签名
+        run: |
+          APP="dist/PCL-Y.app"
+          xattr -cr "$APP" || true
+          codesign --force --deep --sign - "$APP"
+          codesign -dv "$APP" 2>&1 | head -5
+
+      - name: 启动器干跑（无 Wine，应给出安装提示而不是崩溃）
+        run: |
+          APP="dist/PCL-Y.app"
+          set +e
+          OUT=$("$APP/Contents/MacOS/PCL-Y" 2>&1)
+          CODE=$?
+          set -e
+          echo "$OUT" | head -10
+          # 没有 Wine 时应当以非 0 退出并给出提示
+          if [ "$CODE" -eq 0 ]; then
+            echo "预期非 0 退出（无 Wine），实际 0"
+            exit 1
+          fi
+          echo "$OUT" | grep -q "Wine" || { echo "没有 Wine 相关提示"; exit 1; }
+          echo "干跑行为符合预期"
+
+      - name: 诊断脚本
+        run: bash "dist/PCL-Y.app/Contents/Resources/scripts/doctor.sh" || true
+
+  # ── 3. 可选：上传到 Release ────────────────────────────────────────────
+  publish:
+    name: 上传到 Release
+    needs: [bundle, verify-macos]
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.upload_release == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 下载 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: PCL-Y-mac-${{ needs.bundle.outputs.version }}
+          path: dist
+
+      - name: 上传资产
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          V="${{ needs.bundle.outputs.version }}"
+          gh release upload "V$V" \
+            "dist/PCL-Y-$V-mac.zip" \
+            "dist/PCL-Y-$V-mac.tar.gz" \
+            -R "${{ github.repository }}" \
+            --clobber
+          echo "已上传到 Release V$V"

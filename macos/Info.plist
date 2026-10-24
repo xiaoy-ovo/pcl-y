@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>PCL-Y</string>
+    <key>CFBundleDisplayName</key>
+    <string>PCL-Y</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.pcly.mac</string>
+    <key>CFBundleVersion</key>
+    <string>1.2.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.2.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleSignature</key>
+    <string>????</string>
+    <key>CFBundleExecutable</key>
+    <string>PCL-Y</string>
+    <key>CFBundleIconFile</key>
+    <string>appicon.icns</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.15</string>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.games</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSSupportsAutomaticGraphicsSwitching</key>
+    <true/>
+    <key>NSRequiresAquaSystemAppearance</key>
+    <false/>
+    <key>LSArchitecturePriority</key>
+    <array>
+        <string>x86_64</string>
+        <string>arm64</string>
+    </array>
+    <key>NSHumanReadableCopyright</key>
+    <string>PCL-Y 1.2.0 packaged for macOS via Wine. Original application by its authors.</string>
+    <key>LSEnvironment</key>
+    <dict>
+        <key>PCLY_MAC_BUNDLE</key>
+        <string>1</string>
+    </dict>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+</dict>
+</plist>

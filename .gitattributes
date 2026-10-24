@@ -61,3 +61,11 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+###############################################################################
+# macOS 打包脚本：强制 LF，避免 Windows 上 checkout 后 macOS 报 bad interpreter
+###############################################################################
+macos/*.sh    text eol=lf
+macos/**/*.sh text eol=lf
+macos/*.py    text eol=lf
+macos/Info.plist text eol=lf
